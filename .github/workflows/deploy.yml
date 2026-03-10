@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "mobile-notes-agent/**"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -14,6 +15,8 @@ jobs:
     defaults:
       run:
         working-directory: mobile-notes-agent
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +24,25 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-action/setup-flyctl@master
 
-      - name: Deploy to Fly.io
+      - name: Ensure app exists
+        run: |
+          if ! flyctl status --app mobile-notes-agent 2>/dev/null; then
+            flyctl apps create mobile-notes-agent --org personal
+          fi
+
+      - name: Ensure volume exists
+        run: |
+          if ! flyctl volumes list --app mobile-notes-agent --json | grep -q '"name":"notes_data"'; then
+            flyctl volumes create notes_data --app mobile-notes-agent --region ewr --size 1 --yes
+          fi
+
+      - name: Set secrets
+        run: |
+          flyctl secrets set --app mobile-notes-agent \
+            TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
+            ANTHROPIC_API_KEY="${{ secrets.ANTHROPIC_API_KEY }}" \
+            ALLOWED_USER_IDS="${{ secrets.ALLOWED_USER_IDS }}" \
+            --stage
+
+      - name: Deploy
         run: flyctl deploy --remote-only
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
