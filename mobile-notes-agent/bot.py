@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
 import agent
-import storage
+import spaces
 from config import ALLOWED_USER_IDS, TELEGRAM_BOT_TOKEN
 from scheduler import start_scheduler
 
@@ -36,7 +36,8 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         '• "Add to my todo: call dentist"\n'
         '• "Show my AI ideas"\n'
         '• "Remind me to buy milk tomorrow at 9am"\n'
-        '• "What lists do I have?"'
+        '• "What spaces do I have?"\n'
+        '• "Create a space for book recommendations"'
     )
 
 
@@ -79,7 +80,7 @@ def main() -> None:
         print("Error: TELEGRAM_BOT_TOKEN not set. Copy .env.example to .env and fill it in.")
         sys.exit(1)
 
-    storage.init_db()
+    spaces.init_db()
 
     app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).post_init(post_init).build()
     app.add_handler(CommandHandler("start", cmd_start))

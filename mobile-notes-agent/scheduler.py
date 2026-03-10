@@ -5,7 +5,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from telegram import Bot
 
-import storage
+import spaces
 from config import REMINDER_CHECK_MINUTES
 
 logger = logging.getLogger(__name__)
@@ -15,18 +15,18 @@ _scheduler: AsyncIOScheduler | None = None
 
 async def _check_reminders(bot: Bot, chat_id: int) -> None:
     """Check for due reminders and send them."""
-    due = storage.get_due_reminders()
+    due = spaces.get_due_reminders()
     for reminder in due:
         msg_parts = []
         if reminder.get("message"):
             msg_parts.append(reminder["message"])
-        if reminder.get("note_content"):
-            msg_parts.append(f'(from your {reminder.get("category", "notes")} list: "{reminder["note_content"]}")')
+        if reminder.get("linked_content"):
+            msg_parts.append(f'(from {reminder.get("linked_space", "a space")}: "{reminder["linked_content"]}")')
 
-        text = "⏰ Reminder: " + " ".join(msg_parts)
+        text = "\u23f0 Reminder: " + " ".join(msg_parts)
         try:
             await bot.send_message(chat_id=chat_id, text=text)
-            storage.mark_reminder_sent(reminder["id"])
+            spaces.mark_reminder_sent(reminder["id"])
             logger.info("Sent reminder %d", reminder["id"])
         except Exception:
             logger.exception("Failed to send reminder %d", reminder["id"])

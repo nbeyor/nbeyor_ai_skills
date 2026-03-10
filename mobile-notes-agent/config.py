@@ -16,7 +16,7 @@ ALLOWED_USER_IDS = [
     if uid.strip()
 ]
 
-DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "data", "notes.db"))
+DATA_DIR = os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "data"))
 REMINDER_CHECK_MINUTES = int(os.environ.get("REMINDER_CHECK_MINUTES", "5"))
 
 # Claude model to use for the agent

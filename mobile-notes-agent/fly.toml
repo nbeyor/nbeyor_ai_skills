@@ -1,0 +1,18 @@
+app = "mobile-notes-agent"
+primary_region = "ewr"
+
+[build]
+
+[env]
+  DATA_DIR = "/data"
+
+[mounts]
+  source = "notes_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+  cpus = 1
+  auto_stop = "off"
+  auto_start = false
